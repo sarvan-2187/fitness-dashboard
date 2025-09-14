@@ -5,7 +5,7 @@ import google.generativeai as genai
 app = Flask(__name__)
 DATA_FILE = 'data.json'
 
-genai.configure(api_key='AIzaSyDgZq2g89yNS3zu3GFZ-k-AZGWTzsHlJE4')
+genai.configure(api_key='GEMINI_API_KEY')
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 
@@ -154,3 +154,4 @@ def chat_response():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
