@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #4361ee;
+            --border-color: #dee2e6;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --accent-color: #4cc9f0;
+            --border-color: #2d2d2d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            font-family: 'Funnel Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color var(--transition-speed);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all var(--transition-speed);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--accent-color);
+        }
+
+        .theme-switch {
+            margin: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .code-block {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            white-space: pre;       
+            tab-size: 4;           
+            line-height: 1.6;    
+        }
+
+
+        .theme-label {
+            color: var(--text-secondary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: margin-left var(--transition-speed);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        /* Documentation Content */
+        .doc-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .doc-section {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .doc-section h2 {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .doc-section h3 {
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            margin: 20px 0 10px 0;
+        }
+
+        .doc-section p {
+            margin-bottom: 15px;
+            color: var(--text-secondary);
+        }
+
+        .complexity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .complexity-table th,
+        .complexity-table td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+        }
+
+        .complexity-table th {
+            background-color: var(--bg-primary);
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .complexity-table td {
+            color: var(--text-secondary);
+        }
+
+        .highlight {
+            background-color: rgba(67, 97, 238, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Mobile menu button */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background-color: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .sidebar-backdrop.active {
+            display: block;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .header {
+                padding-left: 60px;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .menu-toggle {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .doc-content {
+                padding: 0 10px;
+            }
+
+            .doc-section {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- <div class="sidebar-header">
+            <h2>FitTrack</h2>
+        </div> -->
+
+        <a href="/" class="nav-item">
+            <i></i> Dashboard
+        </a>
+        <a href="/chat" class="nav-item">
+            <i></i> AI Assistant
+        </a>
+        <a href="/device" class="nav-item">
+            <i></i> Device
+        </a>
+        <a href="/documentation" class="nav-item active">
+            <i></i> Documentation
+        </a>
+
+        <div class="theme-switch">
+            <span class="theme-label">Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" id="menu-toggle">
+        <i>☰</i>
+    </div>
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Fitness Tracker Documentation</h1>
+            <div class="user-menu">
+                <div class="user-avatar">U</div>
+            </div>
+        </div>
+
+        <div class="doc-content">
+            <!-- Project Overview -->
+            <div class="doc-section">
+                <h2>Project Overview</h2>
+                <p>This Fitness Tracker Dashboard is a comprehensive web application built using <span class="highlight">Linked List Data Structure</span> for efficient data management. The application allows users to track their daily fitness activities including steps, calories, distance, and active minutes.</p>
+                
+                <h3>Key Features</h3>
+                <ul class="feature-list">
+                    <li>Real-time fitness data tracking and visualization</li>
+                    <li>Interactive charts and graphs for progress monitoring</li>
+                    <li>AI-powered fitness assistant for personalized guidance</li>
+                    <li>Bluetooth device integration for automatic data sync</li>
+                    <li>Dark/Light theme support</li>
+                    <li>Responsive design for all devices</li>
+                    <li>Data persistence using JSON file storage</li>
+                </ul>
+            </div>
+
+            <!-- Data Structure -->
+            <div class="doc-section">
+                <h2>Data Structure Implementation</h2>
+                <p>The core of this application uses a <span class="highlight">Singly Linked List</span> to manage fitness entries efficiently. Each node in the linked list represents a single day's fitness data.</p>
+
+                <h3>Node Structure</h3>
+                <div class="code-block">
+class Node:
+    def __init__(self, data):
+        self.data = data      # Dictionary containing fitness data
+        self.next = None      # Pointer to next node
+
+# Example data structure:
+# {
+#     'date': '2024-01-15',
+#     'steps': 8500,
+#     'calories': 340,
+#     'distance': 5.95,
+#     'active_minutes': 85
+# }
+                </div>
+
+                 <h3>Linked List Class</h3>
+                 <div class="code-block">
+ class FitnessLinkedList:
+     def __init__(self):
+         self.head = None      # Pointer to first node
+         self.tail = None      # Pointer to last node (for O(1) append)
+     
+     def append(self, data):   # Add new entry - O(1)
+     def delete_by_date(self, date):  # Remove entry - O(n)
+     def to_list(self):        # Convert to array - O(n)
+     def load_from_list(self, data_list):  # Load from array - O(n)
+     def get_last_entry(self): # Get last entry - O(1)
+     def get_first_entry(self): # Get first entry - O(1)
+     def is_empty(self):       # Check if empty - O(1)
+     def size(self):           # Get size - O(n)
+                 </div>
+            </div>
+
+            <!-- Time Complexity Analysis -->
+            <div class="doc-section">
+                <h2>Time Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead>
+                        <tr>
+                            <th>Operation</th>
+                            <th>Time Complexity</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                     <tbody>
+                         <tr>
+                             <td>Append (Add Entry)</td>
+                             <td>O(1)</td>
+                             <td>Uses tail pointer for direct insertion at end</td>
+                         </tr>
+                         <tr>
+                             <td>Delete by Date</td>
+                             <td>O(n)</td>
+                             <td>Must search through list to find target node</td>
+                         </tr>
+                         <tr>
+                             <td>Convert to List</td>
+                             <td>O(n)</td>
+                             <td>Must visit every node to build array</td>
+                         </tr>
+                         <tr>
+                             <td>Load from List</td>
+                             <td>O(n)</td>
+                             <td>Must create n nodes from array data</td>
+                         </tr>
+                         <tr>
+                             <td>Search by Date</td>
+                             <td>O(n)</td>
+                             <td>Linear search through the list</td>
+                         </tr>
+                         <tr>
+                             <td>Get Last Entry</td>
+                             <td>O(1)</td>
+                             <td>Direct access via tail pointer</td>
+                         </tr>
+                         <tr>
+                             <td>Get First Entry</td>
+                             <td>O(1)</td>
+                             <td>Direct access via head pointer</td>
+                         </tr>
+                         <tr>
+                             <td>Check if Empty</td>
+                             <td>O(1)</td>
+                             <td>Simple head pointer check</td>
+                         </tr>
+                     </tbody>
+                </table>
+
+                <h3>Why O(1) for Append with Tail Pointer?</h3>
+                <p>By maintaining a tail pointer that always points to the last node, we can insert new entries at the end of the list in constant time O(1). This eliminates the need to traverse the entire list to find the insertion point, making append operations much more efficient.</p>
+            </div>
+
+            <!-- Space Complexity Analysis -->
+            <div class="doc-section">
+                <h2>Space Complexity Analysis</h2>
+                <table class="complexity-table">
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Space Complexity</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                     <tbody>
+                         <tr>
+                             <td>Node Storage</td>
+                             <td>O(n)</td>
+                             <td>Each fitness entry requires one node</td>
+                         </tr>
+                         <tr>
+                             <td>Data Fields</td>
+                             <td>O(1) per node</td>
+                             <td>Fixed number of fields per entry</td>
+                         </tr>
+                         <tr>
+                             <td>Pointer Storage</td>
+                             <td>O(1) per node</td>
+                             <td>One next pointer per node</td>
+                         </tr>
+                         <tr>
+                             <td>Head Pointer</td>
+                             <td>O(1)</td>
+                             <td>Single pointer to first node</td>
+                         </tr>
+                         <tr>
+                             <td>Tail Pointer</td>
+                             <td>O(1)</td>
+                             <td>Single pointer to last node</td>
+                         </tr>
+                         <tr>
+                             <td>Overall Structure</td>
+                             <td>O(n)</td>
+                             <td>Linear growth with number of entries</td>
+                         </tr>
+                     </tbody>
+                </table>
+
+                <h3>Memory Efficiency</h3>
+                <p>The linked list structure provides efficient memory usage as it only allocates space for the data that exists, unlike arrays which may have unused capacity.</p>
+            </div>
+
+            <!-- Algorithm Implementation -->
+            <div class="doc-section">
+                <h2>Core Algorithms</h2>
+                
+                 <h3>1. Append Algorithm (Optimized with Tail Pointer)</h3>
+                 <div class="code-block">
+ def append(self, data):
+     new_node = Node(data)
+     if not self.head:
+         self.head = new_node
+         self.tail = new_node
+     else:
+         self.tail.next = new_node
+         self.tail = new_node
+                 </div>
+
+                <h3>2. Delete by Date Algorithm (with Tail Pointer Update)</h3>
+                <div class="code-block">
+def delete_by_date(self, date):
+    temp = self.head
+    prev = None
+    while temp:
+        if temp.data['date'] == date:
+            if prev:
+                prev.next = temp.next
+            else:
+                self.head = temp.next
+            
+            # Update tail pointer if we deleted the last node
+            if temp == self.tail:
+                self.tail = prev
+            return
+        prev = temp
+        temp = temp.next
+                </div>
+
+                <h3>3. List Conversion Algorithm</h3>
+                <div class="code-block">
+def to_list(self):
+    result = []
+    temp = self.head
+    while temp:
+        result.append(temp.data)
+        temp = temp.next
+    return result
+                </div>
+
+                <h3>4. Utility Methods (O(1) Operations)</h3>
+                <div class="code-block">
+def get_last_entry(self):
+    if self.tail:
+        return self.tail.data
+    return None
+
+def get_first_entry(self):
+    if self.head:
+        return self.head.data
+    return None
+
+def is_empty(self):
+    return self.head is None
+                </div>
+            </div>
+
+            <!-- Advantages and Disadvantages -->
+            <div class="doc-section">
+                <h2>Linked List Advantages & Disadvantages</h2>
+                
+                <h3>Advantages</h3>
+                <ul class="feature-list">
+                    <li><strong>Dynamic Size:</strong> Can grow and shrink as needed</li>
+                    <li><strong>Memory Efficiency:</strong> No unused memory allocation</li>
+                    <li><strong>Fast Append:</strong> O(1) insertion at end with tail pointer</li>
+                    <li><strong>Fast Access:</strong> O(1) access to first and last elements</li>
+                    <li><strong>No Memory Wastage:</strong> Allocates exactly what's needed</li>
+                    <li><strong>Efficient Deletion:</strong> O(1) for known positions</li>
+                </ul>
+
+                <h3>Disadvantages</h3>
+                <ul class="feature-list">
+                    <li><strong>Sequential Access:</strong> Cannot access elements randomly</li>
+                    <li><strong>Extra Memory:</strong> Requires space for pointers</li>
+                    <li><strong>Cache Performance:</strong> Poor cache locality</li>
+                    <li><strong>Search Time:</strong> O(n) for finding elements</li>
+                </ul>
+            </div>
+
+            <!-- Alternative Data Structures -->
+            <div class="doc-section">
+                <h2>Alternative Data Structures</h2>
+                
+                <h3>Array/List</h3>
+                <p><strong>Pros:</strong> O(1) random access, better cache performance<br>
+                <strong>Cons:</strong> Fixed size, expensive insertions/deletions</p>
+
+                <h3>Hash Table/Dictionary</h3>
+                <p><strong>Pros:</strong> O(1) average case for search/insert/delete<br>
+                <strong>Cons:</strong> No guaranteed order, hash collisions</p>
+
+                <h3>Binary Search Tree</h3>
+                <p><strong>Pros:</strong> O(log n) search, maintains sorted order<br>
+                <strong>Cons:</strong> Can become unbalanced, more complex</p>
+
+                <h3>Why Linked List for This Project?</h3>
+                <p>Linked list was chosen for this fitness tracker because:</p>
+                <ul class="feature-list">
+                    <li>Fitness data is naturally sequential (chronological order)</li>
+                    <li>Frequent insertions of new daily entries</li>
+                    <li>Occasional deletions of specific dates</li>
+                    <li>Simple implementation and maintenance</li>
+                    <li>Memory efficient for varying data sizes</li>
+                </ul>
+            </div>
+
+            <!-- Performance Considerations -->
+            <div class="doc-section">
+                <h2>Performance Considerations</h2>
+                
+                <h3>Optimization Strategies</h3>
+                <ul class="feature-list">
+                    <li><strong>Tail Pointer:</strong> Implemented for O(1) append operations</li>
+                    <li><strong>Size Counter:</strong> Maintain size counter for O(1) size queries</li>
+                    <li><strong>Indexing:</strong> Create date-to-node mapping for faster lookups</li>
+                    <li><strong>Caching:</strong> Cache frequently accessed data</li>
+                    <li><strong>Batch Operations:</strong> Process multiple operations together</li>
+                    <li><strong>Memory Pool:</strong> Pre-allocate nodes for better performance</li>
+                </ul>
+
+                <h3>Scalability</h3>
+                <p>For large datasets (10,000+ entries), consider:</p>
+                <ul class="feature-list">
+                    <li>Binary Search Tree for O(log n) operations</li>
+                    <li>Hash table with date as key for O(1) access</li>
+                    <li>Database storage for persistence and querying</li>
+                    <li>Pagination for UI performance</li>
+                </ul>
+            </div>
+
+            <!-- Technical Stack -->
+            <div class="doc-section">
+                <h2>Technical Stack</h2>
+                
+                <h3>Backend</h3>
+                <ul class="feature-list">
+                    <li><strong>Python Flask:</strong> Web framework</li>
+                    <li><strong>Linked List:</strong> Core data structure</li>
+                    <li><strong>JSON:</strong> Data persistence</li>
+                    <li><strong>Google Gemini AI:</strong> AI assistant integration</li>
+                </ul>
+
+                <h3>Frontend</h3>
+                <ul class="feature-list">
+                    <li><strong>HTML5/CSS3:</strong> Structure and styling</li>
+                    <li><strong>JavaScript:</strong> Interactive functionality</li>
+                    <li><strong>Chart.js:</strong> Data visualization</li>
+                    <li><strong>Web Bluetooth API:</strong> Device integration</li>
+                </ul>
+
+                <h3>Features</h3>
+                <ul class="feature-list">
+                    <li><strong>Responsive Design:</strong> Mobile-first approach</li>
+                    <li><strong>Dark/Light Theme:</strong> User preference support</li>
+                    <li><strong>Real-time Updates:</strong> Dynamic data visualization</li>
+                    <li><strong>AI Integration:</strong> Intelligent fitness guidance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Check for saved theme preference or respect OS preference
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        if (savedTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            backdrop.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking backdrop
+        backdrop.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            backdrop.classList.remove('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024 &&
+                !sidebar.contains(e.target) &&
+                !menuToggle.contains(e.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                backdrop.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+
+</html>

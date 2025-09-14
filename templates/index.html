@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-primary: #f8f9fa;
+            --bg-secondary: #ffffff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-color: #4361ee;
+            --border-color: #dee2e6;
+            --sidebar-width: 250px;
+            --header-height: 70px;
+            --transition-speed: 0.3s;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --text-primary: #f8f9fa;
+            --text-secondary: #adb5bd;
+            --accent-color: #4cc9f0;
+            --border-color: #2d2d2d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            font-family: 'Funnel Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background-color var(--transition-speed);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px 0;
+            height: 100vh;
+            position: fixed;
+            overflow-y: auto;
+            transition: all var(--transition-speed);
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--accent-color);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .theme-switch {
+            margin: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .theme-label {
+            color: var(--text-secondary);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent-color);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+            transition: margin-left var(--transition-speed);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-icon i {
+            font-size: 1.2rem;
+            color: inherit;
+        }
+
+        .card-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-change {
+            font-size: 0.85rem;
+            color: #28a745;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-change.negative {
+            color: #dc3545;
+        }
+
+        /* AI Insights Card Styles */
+        .ai-insights-card {
+            grid-column: span 2;
+            min-height: 200px;
+        }
+
+        .ai-insights-content {
+            display: flex;
+            gap: 20px;
+            height: 100%;
+        }
+
+        .insights-section {
+            flex: 1;
+        }
+
+        .insights-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .insights-title.positive {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+
+        .insights-title.improvement {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #f39c12;
+        }
+
+        .insights-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .insights-list li {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background-color: var(--bg-primary);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            border-left: 3px solid var(--accent-color);
+        }
+
+        .insights-list li:before {
+            content: "•";
+            color: var(--accent-color);
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* Gemini AI Card Styles */
+        .gemini-ai-card {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%);
+            color: white;
+            border: none;
+        }
+
+        .gemini-ai-card .chart-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gemini-ai-card .chart-title {
+            color: white;
+            font-weight: 600;
+        }
+
+        .ai-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .gemini-content {
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .gemini-avatar {
+            margin-bottom: 15px;
+        }
+
+        .ai-icon {
+            font-size: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .ai-icon i {
+            font-size: 2rem;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .gemini-message {
+            margin-bottom: 20px;
+        }
+
+        .gemini-message p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .gemini-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .gemini-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .gemini-btn.primary {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .gemini-btn.primary:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .gemini-btn.secondary {
+            background-color: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .gemini-btn.secondary:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .gemini-features {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .feature-tag {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Modal Styles */
+        .insights-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            margin: 0;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            color: var(--text-primary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .modal-body h1, .modal-body h2, .modal-body h3, .modal-body h4 {
+            color: var(--accent-color);
+            margin: 15px 0 10px 0;
+            font-weight: 600;
+        }
+
+        .modal-body h1 { font-size: 1.3rem; }
+        .modal-body h2 { font-size: 1.2rem; }
+        .modal-body h3 { font-size: 1.1rem; }
+        .modal-body h4 { font-size: 1rem; }
+
+        .modal-body p {
+            margin: 10px 0;
+        }
+
+        .modal-body ul, .modal-body ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .modal-body li {
+            margin: 5px 0;
+        }
+
+        .modal-body strong {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .modal-body code {
+            background-color: var(--bg-primary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent-color);
+            font-size: 0.9em;
+            font-family: 'Monaco', 'Consolas', monospace;
+        }
+
+        .modal-footer {
+            text-align: center;
+        }
+
+        .modal-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Form Styles */
+        .fitness-form {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .input-fields {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 1rem;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Funnel Display', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .input-fields:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            font-family: 'Funnel Display', sans-serif;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #667eea 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border-color);
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-wrapper canvas {
+            max-height: 350px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Table Styles */
+        .table-container {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--bg-primary);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background-color: var(--bg-primary);
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .action-btn:hover {
+            background-color: #c82333;
+        }
+
+        .menu-toggle {
+          display: none;
+          position: absolute;
+          left: 15px;
+          top: 50%;
+          transform: translateY(-48.5vh);
+          background-color: var(--accent-color);
+          color: white;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          cursor: pointer;
+           z-index: 1200;
+        }
+
+        .menu-toggle i {
+            font-size: 1.2rem;
+            color: inherit;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .header {
+                padding-left: 60px;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            .menu-toggle {
+                display: none !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .ai-insights-card {
+                grid-column: span 2;
+            }
+
+            .ai-insights-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 350px;
+            }
+
+            .chart-wrapper canvas {
+                max-height: 300px;
+            }
+
+            .gemini-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .gemini-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-content {
+                padding: 20px;
+                max-width: 95%;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 300px;
+            }
+
+            .chart-wrapper canvas {
+                max-height: 250px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .main-content {
+                padding: 10px;
+            }
+
+            .modal-content {
+                padding: 15px;
+                max-width: 98%;
+            }
+
+            .modal-title {
+                font-size: 1rem;
+            }
+
+            .modal-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
+        }
+
+        .bluetooth-status {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-connected {
+            background-color: #28a745;
+        }
+
+        .status-disconnected {
+            background-color: #dc3545;
+        }
+
+        .status-connecting {
+            background-color: #ffc107;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state p {
+            margin-top: 10px;
+        }
+        .emoji {
+            font-size: 1rem;
+            background: rgb(65, 233, 255);        
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent; 
+        }
+
+
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        
+
+        <a href="#" class="nav-item active">
+            <i></i> Dashboard
+        </a>
+        <a href="/chat" class="nav-item">
+            <i></i> AI Assistant
+        </a>
+        <a href="/device" class="nav-item">
+            <i></i> Device
+        </a>
+        <a href="/documentation" class="nav-item">
+            <i></i> Documentation
+        </a>
+
+        <div class="theme-switch">
+            <span class="theme-label">Dark Mode</span>
+            <label class="switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="menu-toggle" style="display: flex; align-items: center; justify-items: center;" id="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Fitness Tracker</h1>
+            <div class="user-menu">
+                <div class="user-avatar">U</div>
+            </div>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="dashboard-cards">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Total Steps</div>
+                    <div class="card-icon" ><span class="emoji">👣</span></div>
+                </div>
+                <div class="card-value" id="total-steps">0</div>
+                <div class="card-change" id="steps-change">No previous data</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Calories Burned</div>
+                    <div class="card-icon"><i class="fas fa-fire"></i></div>
+                </div>
+                <div class="card-value" id="total-calories">0</div>
+                <div class="card-change" id="calories-change">No previous data</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Distance</div>
+                    <div class="card-icon"><span class="emoji">📍</span></div>
+                </div>
+                <div class="card-value" id="total-distance">0 km</div>
+                <div class="card-change" id="distance-change">No previous data</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Active Minutes</div>
+                    <div class="card-icon"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="card-value" id="total-active-minutes">0 min</div>
+                <div class="card-change" id="active-minutes-change">No previous data</div>
+            </div>
+
+            
+        </div>
+
+        <!-- Fitness Form -->
+        <div class="fitness-form">
+            <div class="form-title">
+                <span>Add New Entry</span>
+                <div class="bluetooth-status">
+                    <div class="status-indicator status-disconnected" id="bluetooth-status"></div>
+                    <span id="bluetooth-status-text">Disconnected</span>
+                </div>
+            </div>
+
+            <form action="/add" method="post" id="fitness-form">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label class="input-label">Date</label>
+                        <input class="input-fields" type="date" name="date" required id="entry-date">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Steps</label>
+                        <input class="input-fields" type="number" name="steps" placeholder="Steps" required
+                            id="entry-steps">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Calories</label>
+                        <input class="input-fields" type="number" name="calories" placeholder="Calories" required
+                            id="entry-calories">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Distance (km)</label>
+                        <input class="input-fields" type="number" step="0.1" name="distance" placeholder="Distance (km)"
+                            required id="entry-distance">
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label">Active Minutes</label>
+                        <input class="input-fields" type="number" name="active_minutes" placeholder="Active Minutes"
+                            required id="entry-active-minutes">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Entry</button>
+                    <button type="button" class="btn btn-secondary" id="connect-bluetooth">Connect Bluetooth
+                        Device</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Charts Container -->
+        <div class="charts-container">
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Steps Progress</div>
+                </div>
+                <canvas id="stepsChart"></canvas>
+                <div class="empty-state" id="steps-chart-empty" style="display: none;">
+                    <h3>No steps data yet</h3>
+                    <p>Add your first entry to see your progress</p>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Active Minutes</div>
+                </div>
+                <canvas id="activeMinutesChart"></canvas>
+                <div class="empty-state" id="minutes-chart-empty" style="display: none;">
+                    <h3>No activity data yet</h3>
+                    <p>Add your first entry to see your progress</p>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-title">Weekly Progress</div>
+                </div>
+                <canvas id="weeklyProgressChart"></canvas>
+                <div class="empty-state" id="weekly-chart-empty" style="display: none;">
+                    <h3>No weekly data yet</h3>
+                    <p>Add entries to see weekly trends</p>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-title">Monthly Distance</div>
+                </div>
+                <canvas id="monthlyProgressChart"></canvas>
+                <div class="empty-state" id="monthly-chart-empty" style="display: none;">
+                    <h3>No monthly data yet</h3>
+                    <p>Add entries to see monthly trends</p>
+                </div>
+            </div>
+
+            <div class="chart-wrapper">
+                <div class="chart-header">
+                    <div class="chart-title">Daily Activity Distribution</div>
+                </div>
+                <canvas id="dailyActivityChart"></canvas>
+                <div class="empty-state" id="daily-activity-chart-empty" style="display: none;">
+                    <h3>No activity data yet</h3>
+                    <p>Add your first entry to see activity breakdown</p>
+                </div>
+            </div>
+
+            <div class="chart-wrapper gemini-ai-card">
+                <div class="chart-header">
+                    <div class="chart-title">AI Assistant</div>
+                    <div class="ai-status-indicator">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Ready</span>
+                    </div>
+                </div>
+                <div class="gemini-content">
+                    <div class="gemini-avatar">
+                        <div class="ai-icon"><i class="fas fa-robot"></i></div>
+                    </div>
+                    <div class="gemini-actions">
+                        <button class="gemini-btn primary" onclick="openChat()">
+                            <span></span> Start Chat
+                        </button>
+                        <button class="gemini-btn secondary" onclick="getQuickInsights()">
+                            <span></span> Quick Insights
+                        </button>
+                    </div>
+                    <div class="gemini-features">
+                        <div class="feature-tag">Data Analysis</div>
+                        <div class="feature-tag">Goal Setting</div>
+                        <div class="feature-tag">Progress Tracking</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Steps</th>
+                        <th>Calories</th>
+                        <th>Distance (km)</th>
+                        <th>Active Minutes</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="entries-table-body">
+                    {% for entry in entries %}
+                    <tr>
+                        <td>{{ entry.date }}</td>
+                        <td>{{ entry.steps }}</td>
+                        <td>{{ entry.calories }}</td>
+                        <td>{{ entry.distance }}</td>
+                        <td>{{ entry.active_minutes }}</td>
+                        <td>
+                            <form action="/delete" method="post" style="display:inline;">
+                                <input type="hidden" name="date" value="{{ entry.date }}">
+                                <button type="submit" class="action-btn">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not entries %}
+            <div class="empty-state">
+                <h3>No entries yet</h3>
+                <p>Add your first fitness entry to get started</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        // Check for saved theme preference or respect OS preference
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+        if (savedTheme === 'dark') {
+            body.setAttribute('data-theme', 'dark');
+            themeToggle.checked = true;
+        }
+
+        themeToggle.addEventListener('change', () => {
+            if (themeToggle.checked) {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+            }
+
+            // Update charts when theme changes
+            updateCharts();
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menu-toggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth < 1024 &&
+                !sidebar.contains(e.target) &&
+                !menuToggle.contains(e.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Bluetooth functionality
+        const connectBtn = document.getElementById('connect-bluetooth');
+        const bluetoothStatus = document.getElementById('bluetooth-status');
+        const bluetoothStatusText = document.getElementById('bluetooth-status-text');
+        let bluetoothDevice = null;
+
+        connectBtn.addEventListener('click', async () => {
+            try {
+                bluetoothStatus.className = 'status-indicator status-connecting';
+                bluetoothStatusText.textContent = 'Connecting...';
+
+                // Request Bluetooth device
+                bluetoothDevice = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { services: ['heart_rate', 'fitness_machine'] }, // Fitness-related services
+                        { namePrefix: 'Fit' } // Devices starting with "Fit"
+                    ],
+                    optionalServices: ['battery_service', 'device_information']
+                });
+
+                // Connect to the device
+                const server = await bluetoothDevice.gatt.connect();
+
+                bluetoothStatus.className = 'status-indicator status-connected';
+                bluetoothStatusText.textContent = `Connected to ${bluetoothDevice.name}`;
+
+                // Try to read data from the device
+                try {
+                    await readBluetoothData(server);
+                } catch (error) {
+                    console.error('Error reading data from device:', error);
+                    // Fall back to simulated data if real data reading fails
+                    simulateBluetoothData();
+                }
+
+                // Handle device disconnection
+                bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+
+            } catch (error) {
+                console.error('Bluetooth connection failed:', error);
+                bluetoothStatus.className = 'status-indicator status-disconnected';
+                bluetoothStatusText.textContent = 'Connection failed';
+            }
+        });
+
+        async function readBluetoothData(server) {
+            // Try to get heart rate service
+            try {
+                const heartRateService = await server.getPrimaryService('heart_rate');
+                const heartRateMeasurement = await heartRateService.getCharacteristic('heart_rate_measurement');
+
+                await heartRateMeasurement.startNotifications();
+
+                heartRateMeasurement.addEventListener('characteristicvaluechanged', event => {
+                    const value = event.target.value;
+                    // Parse heart rate data (format depends on the device)
+                    const flags = value.getUint8(0);
+                    let heartRate;
+
+                    if (flags & 0x1) {
+                        // Heart rate value format is set to UINT16
+                        heartRate = value.getUint16(1, true);
+                    } else {
+                        // Heart rate value format is set to UINT8
+                        heartRate = value.getUint8(1);
+                    }
+
+                    // Update form with heart rate data
+                    document.getElementById('entry-active-minutes').value = Math.round(heartRate * 0.25); // Estimate active minutes
+                });
+            } catch (e) {
+                console.log('Heart rate service not available');
+            }
+
+            // Simulate other data since most fitness devices don't expose all data via standard services
+            simulateBluetoothData();
+        }
+
+        function onDisconnected() {
+            bluetoothStatus.className = 'status-indicator status-disconnected';
+            bluetoothStatusText.textContent = 'Disconnected';
+        }
+
+        function simulateBluetoothData() {
+            // Simulate receiving data from a Bluetooth device
+            const today = new Date().toISOString().split('T')[0];
+            const steps = Math.floor(Math.random() * 5000) + 5000;
+            const calories = Math.floor(steps * 0.04);
+            const distance = (steps * 0.0007).toFixed(2);
+            const activeMinutes = Math.floor(steps / 100);
+
+            // Populate the form with the simulated data
+            document.getElementById('entry-date').value = today;
+            document.getElementById('entry-steps').value = steps;
+            document.getElementById('entry-calories').value = calories;
+            document.getElementById('entry-distance').value = distance;
+            document.getElementById('entry-active-minutes').value = activeMinutes;
+        }
+
+        // Initialize charts and update dashboard with real data
+        function updateDashboard() {
+            const entries = JSON.parse('{{ entries | tojson | safe }}');
+
+            if (entries.length > 0) {
+                // Calculate totals
+                const totalSteps = entries.reduce((sum, entry) => sum + parseInt(entry.steps), 0);
+                const totalCalories = entries.reduce((sum, entry) => sum + parseInt(entry.calories), 0);
+                const totalDistance = entries.reduce((sum, entry) => sum + parseFloat(entry.distance), 0);
+                const totalActiveMinutes = entries.reduce((sum, entry) => sum + parseInt(entry.active_minutes), 0);
+
+                // Update card values
+                document.getElementById('total-steps').textContent = totalSteps.toLocaleString();
+                document.getElementById('total-calories').textContent = totalCalories.toLocaleString();
+                document.getElementById('total-distance').textContent = totalDistance.toFixed(2) + ' km';
+                document.getElementById('total-active-minutes').textContent = totalActiveMinutes + ' min';
+
+                // Calculate changes if we have multiple entries
+                if (entries.length > 1) {
+                    const sortedEntries = entries.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const lastEntry = sortedEntries[sortedEntries.length - 1];
+                    const prevEntry = sortedEntries[sortedEntries.length - 2];
+
+                    // Calculate percentage changes
+                    const stepsChange = calculateChange(lastEntry.steps, prevEntry.steps);
+                    const caloriesChange = calculateChange(lastEntry.calories, prevEntry.calories);
+                    const distanceChange = calculateChange(lastEntry.distance, prevEntry.distance);
+                    const activeMinutesChange = calculateChange(lastEntry.active_minutes, prevEntry.active_minutes);
+
+                    // Update change indicators
+                    updateChangeIndicator('steps-change', stepsChange, 'steps');
+                    updateChangeIndicator('calories-change', caloriesChange, 'calories');
+                    updateChangeIndicator('distance-change', distanceChange, 'distance');
+                    updateChangeIndicator('active-minutes-change', activeMinutesChange, 'active minutes');
+                }
+
+                // Update charts
+                updateCharts();
+            } else {
+                // Show empty state messages
+                document.getElementById('steps-chart-empty').style.display = 'block';
+                document.getElementById('minutes-chart-empty').style.display = 'block';
+                document.getElementById('weekly-chart-empty').style.display = 'block';
+                document.getElementById('monthly-chart-empty').style.display = 'block';
+                document.getElementById('daily-activity-chart-empty').style.display = 'block';
+            }
+        }
+
+        function calculateChange(current, previous) {
+            current = parseFloat(current);
+            previous = parseFloat(previous);
+            return ((current - previous) / previous) * 100;
+        }
+
+        function updateChangeIndicator(elementId, change, label) {
+            const element = document.getElementById(elementId);
+            if (change > 0) {
+                element.innerHTML = `<span style="color: #28a745;">+${change.toFixed(1)}%</span> from previous`;
+                element.className = 'card-change';
+            } else if (change < 0) {
+                element.innerHTML = `<span style="color: #dc3545;">${change.toFixed(1)}%</span> from previous`;
+                element.className = 'card-change negative';
+            } else {
+                element.textContent = 'No change from previous';
+                element.className = 'card-change';
+            }
+        }
+
+        function updateCharts() {
+            const entries = JSON.parse('{{ entries | tojson | safe }}');
+
+            if (entries.length === 0) return;
+
+            const labels = entries.map(entry => entry.date);
+            const steps = entries.map(entry => entry.steps);
+            const activeMinutes = entries.map(entry => entry.active_minutes);
+
+            // Get theme colors for charts
+            const gridColor = getComputedStyle(document.body).getPropertyValue('--border-color');
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-primary');
+            const accentColor = getComputedStyle(document.body).getPropertyValue('--accent-color');
+
+            // Steps chart
+            const stepsCtx = document.getElementById('stepsChart').getContext('2d');
+            if (window.stepsChartInstance) {
+                window.stepsChartInstance.destroy();
+            }
+
+            window.stepsChartInstance = new Chart(stepsCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Steps',
+                        data: steps,
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderColor: accentColor,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: accentColor,
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Funnel Display, sans-serif'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Active minutes chart
+            const minutesCtx = document.getElementById('activeMinutesChart').getContext('2d');
+            if (window.minutesChartInstance) {
+                window.minutesChartInstance.destroy();
+            }
+
+            window.minutesChartInstance = new Chart(minutesCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Active Minutes',
+                        data: activeMinutes,
+                        backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                        borderColor: '#4cc9f0',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4cc9f0',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Funnel Display, sans-serif'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Weekly progress chart
+            const weeklyCtx = document.getElementById('weeklyProgressChart').getContext('2d');
+            if (window.weeklyChartInstance) {
+                window.weeklyChartInstance.destroy();
+            }
+
+            // Group data by week
+            const weeklyData = groupDataByWeek(entries);
+            const weeklyLabels = Object.keys(weeklyData).sort();
+            const weeklySteps = weeklyLabels.map(week => weeklyData[week].steps);
+            const weeklyCalories = weeklyLabels.map(week => weeklyData[week].calories);
+
+            window.weeklyChartInstance = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: weeklyLabels,
+                    datasets: [{
+                        label: 'Weekly Steps',
+                        data: weeklySteps,
+                        backgroundColor: 'rgba(67, 97, 238, 0.6)',
+                        borderColor: accentColor,
+                        borderWidth: 1
+                    }, {
+                        label: 'Weekly Calories',
+                        data: weeklyCalories,
+                        backgroundColor: 'rgba(76, 201, 240, 0.6)',
+                        borderColor: '#4cc9f0',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Funnel Display, sans-serif'
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            beginAtZero: true,
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: gridColor
+                            },
+                            ticks: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly progress chart
+            const monthlyCtx = document.getElementById('monthlyProgressChart').getContext('2d');
+            if (window.monthlyChartInstance) {
+                window.monthlyChartInstance.destroy();
+            }
+
+            // Group data by month
+            const monthlyData = groupDataByMonth(entries);
+            const monthlyLabels = Object.keys(monthlyData).sort();
+            const monthlyDistance = monthlyLabels.map(month => monthlyData[month].distance);
+
+            window.monthlyChartInstance = new Chart(monthlyCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: monthlyLabels,
+                    datasets: [{
+                        label: 'Monthly Distance (km)',
+                        data: monthlyDistance,
+                        backgroundColor: [
+                            'rgba(67, 97, 238, 0.8)',
+                            'rgba(76, 201, 240, 0.8)',
+                            'rgba(52, 199, 89, 0.8)',
+                            'rgba(255, 193, 7, 0.8)',
+                            'rgba(255, 87, 34, 0.8)',
+                            'rgba(156, 39, 176, 0.8)'
+                        ],
+                        borderColor: [
+                            accentColor,
+                            '#4cc9f0',
+                            '#34c759',
+                            '#ffc107',
+                            '#ff5722',
+                            '#9c27b0'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Funnel Display, sans-serif'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Daily Activity Pie Chart
+            const dailyActivityCtx = document.getElementById('dailyActivityChart').getContext('2d');
+            if (window.dailyActivityChartInstance) {
+                window.dailyActivityChartInstance.destroy();
+            }
+
+            // Get the latest entry for daily activity breakdown
+            const latestEntry = entries[entries.length - 1];
+            const activityData = [
+                { label: 'Steps', value: latestEntry.steps, color: '#4361ee' },
+                { label: 'Calories', value: latestEntry.calories, color: '#4cc9f0' },
+                { label: 'Distance (km)', value: latestEntry.distance, color: '#28a745' },
+                { label: 'Active Minutes', value: latestEntry.active_minutes, color: '#ffc107' }
+            ];
+
+            window.dailyActivityChartInstance = new Chart(dailyActivityCtx, {
+                type: 'pie',
+                data: {
+                    labels: activityData.map(item => item.label),
+                    datasets: [{
+                        data: activityData.map(item => item.value),
+                        backgroundColor: activityData.map(item => item.color),
+                        borderColor: activityData.map(item => item.color),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: 'Funnel Display, sans-serif'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed;
+                                    return `${label}: ${value.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update AI Insights
+            const insights = generateAIInsights(entries);
+            const positiveList = document.getElementById('positive-insights');
+            const improvementList = document.getElementById('improvement-insights');
+            
+            positiveList.innerHTML = '';
+            improvementList.innerHTML = '';
+            
+            insights.positive.forEach(insight => {
+                const li = document.createElement('li');
+                li.textContent = insight;
+                positiveList.appendChild(li);
+            });
+            
+            insights.improvement.forEach(insight => {
+                const li = document.createElement('li');
+                li.textContent = insight;
+                improvementList.appendChild(li);
+            });
+
+            // Hide empty states since we have data
+            document.getElementById('steps-chart-empty').style.display = 'none';
+            document.getElementById('minutes-chart-empty').style.display = 'none';
+            document.getElementById('weekly-chart-empty').style.display = 'none';
+            document.getElementById('monthly-chart-empty').style.display = 'none';
+            document.getElementById('daily-activity-chart-empty').style.display = 'none';
+        }
+
+        function groupDataByWeek(entries) {
+            const weeklyData = {};
+            entries.forEach(entry => {
+                const date = new Date(entry.date);
+                const weekStart = new Date(date);
+                weekStart.setDate(date.getDate() - date.getDay());
+                const weekKey = weekStart.toISOString().split('T')[0];
+                
+                if (!weeklyData[weekKey]) {
+                    weeklyData[weekKey] = { steps: 0, calories: 0, distance: 0, active_minutes: 0 };
+                }
+                weeklyData[weekKey].steps += parseInt(entry.steps);
+                weeklyData[weekKey].calories += parseInt(entry.calories);
+                weeklyData[weekKey].distance += parseFloat(entry.distance);
+                weeklyData[weekKey].active_minutes += parseInt(entry.active_minutes);
+            });
+            return weeklyData;
+        }
+
+        function groupDataByMonth(entries) {
+            const monthlyData = {};
+            entries.forEach(entry => {
+                const date = new Date(entry.date);
+                const monthKey = date.toISOString().substring(0, 7); // YYYY-MM format
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = { distance: 0 };
+                }
+                monthlyData[monthKey].distance += parseFloat(entry.distance);
+            });
+            return monthlyData;
+        }
+
+        function generateAIInsights(entries) {
+            if (entries.length === 0) {
+                return {
+                    positive: ["Start tracking your fitness data to get personalized insights!"],
+                    improvement: ["Add your first fitness entry to see recommendations"]
+                };
+            }
+
+            const latestEntry = entries[entries.length - 1];
+            const positiveInsights = [];
+            const improvementInsights = [];
+
+            // Analyze steps
+            if (latestEntry.steps >= 10000) {
+                positiveInsights.push("Great job hitting your daily step goal! <i class='fas fa-bullseye'></i>");
+            } else if (latestEntry.steps >= 8000) {
+                positiveInsights.push("You're close to your step goal! Keep it up! <i class='fas fa-dumbbell'></i>");
+            } else {
+                improvementInsights.push("Try to increase your daily steps to 10,000+");
+            }
+
+            // Analyze active minutes
+            if (latestEntry.active_minutes >= 30) {
+                positiveInsights.push("Excellent active minutes today! <i class='fas fa-running'></i>");
+            } else {
+                improvementInsights.push("Aim for at least 30 minutes of active time daily");
+            }
+
+            // Analyze calories
+            if (latestEntry.calories >= 300) {
+                positiveInsights.push("Good calorie burn today! <i class='fas fa-fire'></i>");
+            } else {
+                improvementInsights.push("Try to increase your calorie burn through more activity");
+            }
+
+            // Analyze distance
+            if (latestEntry.distance >= 5) {
+                positiveInsights.push("Great distance covered today! <i class='fas fa-walking'></i>");
+            } else {
+                improvementInsights.push("Try to walk or run more distance daily");
+            }
+
+            // Add trend-based insights if we have multiple entries
+            if (entries.length > 1) {
+                const prevEntry = entries[entries.length - 2];
+                const stepsChange = ((latestEntry.steps - prevEntry.steps) / prevEntry.steps) * 100;
+                
+                if (stepsChange > 10) {
+                    positiveInsights.push("Your steps are increasing! <i class='fas fa-chart-line'></i>");
+                } else if (stepsChange < -10) {
+                    improvementInsights.push("Your steps decreased - try to maintain consistency");
+                }
+            }
+
+            // Ensure we have at least 2 insights in each category
+            while (positiveInsights.length < 2) {
+                positiveInsights.push("Keep maintaining your fitness routine! <i class='fas fa-dumbbell'></i>");
+            }
+            while (improvementInsights.length < 2) {
+                improvementInsights.push("Consistency is key to achieving your goals");
+            }
+
+            return {
+                positive: positiveInsights.slice(0, 2),
+                improvement: improvementInsights.slice(0, 2)
+            };
+        }
+
+        // Gemini AI Card Functions
+        function openChat() {
+            window.location.href = '/chat';
+        }
+
+        async function getQuickInsights() {
+            const entries = JSON.parse('{{ entries | tojson | safe }}');
+            if (entries.length === 0) {
+                alert('Please add some fitness data first to get AI insights!');
+                return;
+            }
+
+            const statusText = document.querySelector('.status-text');
+            const statusDot = document.querySelector('.status-dot');
+            
+            // Show loading state
+            statusText.textContent = 'Analyzing...';
+            statusDot.style.backgroundColor = '#fbbf24';
+            
+            try {
+                const latestEntry = entries[entries.length - 1];
+                const prompt = `Analyze this fitness data and provide 3 quick insights: Steps: ${latestEntry.steps}, Calories: ${latestEntry.calories}, Distance: ${latestEntry.distance}km, Active Minutes: ${latestEntry.active_minutes}. Keep it concise and actionable.`;
+                
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: prompt })
+                });
+                
+                const data = await response.json();
+                
+                // Show insights in a modal or alert
+                showInsightsModal(data.response);
+                
+            } catch (error) {
+                console.error('Error getting AI insights:', error);
+                alert('Sorry, unable to get AI insights at the moment. Please try again later.');
+            } finally {
+                // Reset status
+                statusText.textContent = 'Ready';
+                statusDot.style.backgroundColor = '#4ade80';
+            }
+        }
+
+        function showInsightsModal(insights) {
+            // Create modal
+            const modal = document.createElement('div');
+            modal.className = 'insights-modal';
+            
+            // Parse markdown to HTML
+            const markdownToHtml = (text) => {
+                return text
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                    .replace(/^\* (.*$)/gim, '<li>$1</li>')
+                    .replace(/^- (.*$)/gim, '<li>$1</li>')
+                    .replace(/^\d+\. (.*$)/gim, '<li>$1</li>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/\n/g, '<br>')
+                    .replace(/^(?!<[h|l])/gm, '<p>')
+                    .replace(/(?<!>)$/gm, '</p>')
+                    .replace(/<p><\/p>/g, '')
+                    .replace(/<li>.*<\/li>/g, (match) => {
+                        if (!match.includes('<ul>')) {
+                            return '<ul>' + match + '</ul>';
+                        }
+                        return match;
+                    })
+                    .replace(/<\/ul><ul>/g, '');
+            };
+            
+            const htmlContent = markdownToHtml(insights);
+            
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title"><i class="fas fa-robot"></i> AI Quick Insights</h3>
+                        <button class="modal-close" onclick="this.closest('.insights-modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        ${htmlContent}
+                    </div>
+                    <div class="modal-footer">
+                        <button class="modal-btn" onclick="window.location.href='/chat'">Open Full Chat</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+            
+            // Close on Escape key
+            const handleEscape = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+        }
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            updateDashboard();
+
+            // Set today's date as default in the form
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('entry-date').value = today;
+        });
+
+        document.getElementById('fitness-form').addEventListener('submit', function (e) {
+        });
+    </script>
+</body>
+
+</html>
