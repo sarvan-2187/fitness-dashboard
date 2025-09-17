@@ -1,11 +1,19 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, Response
 import json
+import os
+from dotenv import load_dotenv
 import google.generativeai as genai
+
+load_dotenv()
 
 app = Flask(__name__)
 DATA_FILE = 'data.json'
 
-genai.configure(api_key='GEMINI_API_KEY')
+GENAI_API_KEY = os.environ.get("GENAI_API_KEY")
+if not GENAI_API_KEY:
+    raise RuntimeError("GENAI_API_KEY not set. Please set it in environment variables.")
+
+genai.configure(api_key=GENAI_API_KEY)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
 
@@ -14,12 +22,12 @@ class Node:
         self.data = data
         self.next = None
 
+
 class FitnessLinkedList:
     def __init__(self):
         self.head = None
         self.tail = None  # Tail pointer for O(1) append operations
 
-    # Logic for Appending the data - O(1) with tail pointer
     def append(self, data):
         new_node = Node(data)
         if not self.head:
@@ -29,7 +37,6 @@ class FitnessLinkedList:
             self.tail.next = new_node
             self.tail = new_node
 
-    # Logic for Deleting the data
     def delete_by_date(self, date):
         temp = self.head
         prev = None
@@ -39,15 +46,12 @@ class FitnessLinkedList:
                     prev.next = temp.next
                 else:
                     self.head = temp.next
-                
-                # Update tail pointer if we deleted the last node
                 if temp == self.tail:
                     self.tail = prev
                 return
             prev = temp
             temp = temp.next
 
-    # Linked list to List of Dictionaries
     def to_list(self):
         result = []
         temp = self.head
@@ -56,30 +60,21 @@ class FitnessLinkedList:
             temp = temp.next
         return result
 
-    # Logic for Loading data from List of Dictionaries
     def load_from_list(self, data_list):
         self.head = None
         self.tail = None
         for data in data_list:
             self.append(data)
 
-    # Get the last entry - O(1) with tail pointer
     def get_last_entry(self):
-        if self.tail:
-            return self.tail.data
-        return None
+        return self.tail.data if self.tail else None
 
-    # Get the first entry - O(1)
     def get_first_entry(self):
-        if self.head:
-            return self.head.data
-        return None
+        return self.head.data if self.head else None
 
-    # Check if list is empty - O(1)
     def is_empty(self):
         return self.head is None
 
-    # Get the size of the list - O(n) (could be optimized with size counter)
     def size(self):
         count = 0
         temp = self.head
@@ -96,6 +91,7 @@ def load_data():
     except:
         return []
 
+
 def save_data(data_list):
     with open(DATA_FILE, 'w') as file:
         json.dump(data_list, file, indent=4)
@@ -107,6 +103,7 @@ def index():
     fitness_list = FitnessLinkedList()
     fitness_list.load_from_list(raw_data)
     return render_template('index.html', entries=fitness_list.to_list())
+
 
 @app.route('/add', methods=['POST'])
 def add_entry():
@@ -124,6 +121,7 @@ def add_entry():
     save_data(fitness_list.to_list())
     return redirect('/')
 
+
 @app.route('/delete', methods=['POST'])
 def delete_entry():
     date = request.form['date']
@@ -134,17 +132,16 @@ def delete_entry():
     save_data(fitness_list.to_list())
     return redirect('/')
 
-@app.route('/chat')
-def chat():
-    return render_template('chatbot.html')
 
 @app.route('/device')
 def device():
     return render_template('device.html')
 
+
 @app.route('/documentation')
 def documentation():
     return render_template('documentation.html')
+
 
 @app.route('/chat', methods=['POST'])
 def chat_response():
@@ -152,6 +149,24 @@ def chat_response():
     result = model.generate_content(message)
     return jsonify({'response': result.text})
 
+
+@app.route('/export')
+def export_csv():
+    raw_data = load_data()
+    if not raw_data:
+        return "No data to export", 404
+
+    csv_output = "Date,Steps,Calories,Distance,Active Minutes\n"
+    for entry in raw_data:
+        csv_output += f"{entry['date']},{entry['steps']},{entry['calories']},{entry['distance']},{entry['active_minutes']}\n"
+
+    response = Response(
+        csv_output,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=fitness_data.csv"}
+    )
+    return response
+
+
 if __name__ == '__main__':
     app.run(debug=True)
-
