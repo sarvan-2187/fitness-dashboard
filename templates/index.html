@@ -90,11 +90,11 @@
             color: var(--accent-color);
         }
 
-        .nav-item i {
+        /* .nav-item i {
             margin-right: 10px;
             width: 20px;
             text-align: center;
-        }
+        } */
 
         .theme-switch {
             margin: 20px;
@@ -943,13 +943,10 @@
         
 
         <a href="#" class="nav-item active">
-            <i></i> Dashboard
-        </a>
-        <a href="/chat" class="nav-item">
-            <i></i> AI Assistant
+            <i></i>Dashboard
         </a>
         <a href="/documentation" class="nav-item">
-            <i></i> Documentation
+            <i></i>Documentation
         </a>
 
         <div class="theme-switch">
@@ -1136,9 +1133,6 @@
                         <div class="ai-icon"><i class="fas fa-robot"></i></div>
                     </div>
                     <div class="gemini-actions">
-                        <button class="gemini-btn primary" onclick="openChat()">
-                            <span></span> Start Chat
-                        </button>
                         <button class="gemini-btn secondary" onclick="getQuickInsights()">
                             <span></span> Quick Insights
                         </button>
@@ -1190,10 +1184,18 @@
             </div>
             {% endif %}
         </div>
+        <div style="text-align: center; padding: 20px;">
+            <button class="btn btn-primary" onclick="exportCSV()">
+                <i class="fas fa-download"></i> Export as CSV
+            </button>
+        </div>
     </div>
 
     <script>
         // Theme toggle functionality
+        function exportCSV() {
+            window.location.href = '/export';
+        }
         const themeToggle = document.getElementById('theme-toggle');
         const body = document.body;
 
@@ -1939,9 +1941,6 @@
                     <div class="modal-body">
                         ${htmlContent}
                     </div>
-                    <div class="modal-footer">
-                        <button class="modal-btn" onclick="window.location.href='/chat'">Open Full Chat</button>
-                    </div>
                 </div>
             `;
             
@@ -1977,6 +1976,5 @@
         });
     </script>
 </body>
-
 
 </html>
