@@ -36,7 +36,39 @@
             margin: 0;
             padding: 0;
         }
+.node-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 4px;
+}
 
+.node {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 2px solid var(--accent-color);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    position: relative;
+    min-width: 100px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.arrow {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    align-self: center;
+}
+
+.null-node {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    align-self: center;
+}
         body {
             background-color: var(--bg-primary);
             font-family: 'Funnel Display', -apple-system, BlinkMacSystemFont, sans-serif;
