@@ -36,71 +36,7 @@
             margin: 0;
             padding: 0;
         }
-.node-label {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    text-align: center;
-    margin-bottom: 4px;
-}
 
-.node {
-    background-color: var(--bg-secondary);
-    color: var(--text-primary);
-    border: 2px solid var(--accent-color);
-    padding: 12px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    position: relative;
-    min-width: 100px;
-    text-align: center;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.arrow {
-    font-size: 1.5rem;
-    color: var(--accent-color);
-    align-self: center;
-}
-
-.null-node {
-    font-size: 1rem;
-    color: var(--text-secondary);
-    font-style: italic;
-    align-self: center;
-}
-
-.linked-list-container {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 12px;
-    overflow-x: auto;   /* ✅ allows horizontal scroll on mobile */
-    padding: 10px;
-}
-
-.linked-list-container::-webkit-scrollbar {
-    height: 6px;
-}
-.linked-list-container::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
-    border-radius: 3px;
-}
-
-.node {
-    flex: 0 0 auto;     /* ✅ prevents shrinking on small screens */
-}
-
-.node-label {
-    font-size: 0.75rem;
-    margin-bottom: 2px;
-}
-
-.null-node {
-    flex: 0 0 auto;
-    font-size: 0.85rem;
-}
         body {
             background-color: var(--bg-primary);
             font-family: 'Funnel Display', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -819,7 +755,7 @@
           display: none;
           position: absolute;
           left: 15px;
-          top: 53%;
+          top: 50%;
           transform: translateY(-48.5vh);
           background-color: var(--accent-color);
           color: white;
@@ -996,7 +932,144 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent; 
         }
+        /* Linked List Visualization Styles */
+.linked-list-section {
+    background-color: var(--bg-secondary);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
 
+.linked-list-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    padding: 20px;
+    position: relative;
+}
+
+.linked-list-node {
+    background-color: var(--bg-primary);
+    border: 2px solid var(--accent-color);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px;
+    width: 140px;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.linked-list-node:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    border-color: #667eea;
+}
+
+.linked-list-node.active {
+    background-color: rgba(67, 97, 238, 0.1);
+    border-color: #4361ee;
+}
+
+.node-header {
+    text-align: center;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+
+.node-data span {
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.node-pointer {
+    position: absolute;
+    right: -25px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+.linked-list-node:last-child .node-pointer {
+    display: none;
+}
+
+.node-connector {
+    position: relative;
+    height: 2px;
+    background-color: var(--accent-color);
+    margin: 0 10px;
+    flex-grow: 1;
+    max-width: 50px;
+}
+
+.node-connector::before {
+    content: "→";
+    position: absolute;
+    right: -15px;
+    top: -12px;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+.node-connector::after {
+    content: "→";
+    position: absolute;
+    right: -15px;
+    top: -12px;
+    color: var(--accent-color);
+    font-size: 1.5rem;
+}
+
+.linked-list-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.linked-list-structure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px 0;
+}
+
+.head-pointer, .tail-pointer {
+    background-color: var(--accent-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    margin: 0 10px;
+    font-weight: 500;
+}
+
+.linked-list-info {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .linked-list-node {
+        width: 120px;
+        margin: 10px;
+        padding: 10px;
+    }
+    
+    .node-connector {
+        max-width: 30px;
+    }
+}
 
     </style>
 </head>
@@ -1014,11 +1087,12 @@
         </a>
 
         <div class="theme-switch">
-            <span class="theme-label">Dark Mode</span>
+            <input type="checkbox" id="theme-toggle" hidden>
+
+            <!-- <span class="theme-label">Dark Mode</span>
             <label class="switch">
-                <input type="checkbox" id="theme-toggle">
                 <span class="slider"></span>
-            </label>
+            </label> -->
         </div>
     </div>
 
@@ -1074,21 +1148,9 @@
                 <div class="card-change" id="active-minutes-change">No previous data</div>
             </div>
 
-            <!-- Linked List Visualization -->
-
+            
         </div>
-<div class="chart-wrapper">
-    <div class="chart-header">
-        <div class="chart-title">Linked List Visualization</div>
-    </div>
-    <div id="linked-list-visualization" 
-         style="display: flex; gap: 20px; flex-wrap: wrap; align-items: center; justify-content: center;">
-    </div>
-    <div class="empty-state" id="linked-list-empty" style="display: none;">
-        <h3>No linked list data yet</h3>
-        <p>Add entries to see the list</p>
-    </div>
-</div>
+
         <!-- Fitness Form -->
         <div class="fitness-form">
             <div class="form-title">
@@ -1222,6 +1284,18 @@
             </div>
         </div>
 
+        <div class="linked-list-section">
+            <div class="chart-header">
+                <div class="chart-title">Linked List Visualization</div>
+            </div>
+            <div class="linked-list-container" id="linked-list-container">
+                <div class="empty-state" id="linked-list-empty" style="display: none;">
+                    <h3>No data to visualize</h3>
+                    <p>Add your first fitness entry to see the linked list structure</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Data Table -->
         <div class="table-container">
             <table>
@@ -1295,6 +1369,168 @@
             // Update charts when theme changes
             updateCharts();
         });
+
+        // Linked List Visualization Functions
+            function renderLinkedList() {
+                const entries = JSON.parse('{{ entries | tojson | safe }}');
+                const container = document.getElementById('linked-list-container');
+                const emptyState = document.getElementById('linked-list-empty');
+
+                // Clear previous content
+                container.innerHTML = '';
+
+                if (entries.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+
+                // Create head pointer
+                const headPointer = document.createElement('div');
+                headPointer.className = 'head-pointer';
+                headPointer.textContent = 'Head';
+                container.appendChild(headPointer);
+
+                // Create linked list structure
+                const listStructure = document.createElement('div');
+                listStructure.className = 'linked-list-structure';
+
+                entries.forEach((entry, index) => {
+                    // Create node
+                    const node = document.createElement('div');
+                    node.className = 'linked-list-node';
+                    node.dataset.date = entry.date;
+
+                    // Add node header with date
+                    const header = document.createElement('div');
+                    header.className = 'node-header';
+                    header.textContent = entry.date;
+                    node.appendChild(header);
+
+                    // Add pointer for all except last node
+                    if (index < entries.length - 1) {
+                        const pointer = document.createElement('div');
+                        pointer.className = 'node-pointer';
+                        pointer.innerHTML = '→';
+                        node.appendChild(pointer);
+                    }
+
+                    listStructure.appendChild(node);
+
+                    // Add click event to show details
+                    node.addEventListener('click', () => {
+                        document.querySelectorAll('.linked-list-node').forEach(n => {
+                            n.classList.remove('active');
+                        });
+                        node.classList.add('active');
+                        showNodeDetails(entry);
+                    });
+                });
+
+                container.appendChild(listStructure);
+
+                // Create tail pointer
+                const tailPointer = document.createElement('div');
+                tailPointer.className = 'tail-pointer';
+                tailPointer.textContent = 'Tail';
+                container.appendChild(tailPointer);
+
+                // Add info text
+                const info = document.createElement('div');
+                info.className = 'linked-list-info';
+                info.innerHTML = `<p>This visualization shows how your fitness data is stored using a <strong>singly linked list</strong> data structure.</p>
+                     <p>Click on any node to see detailed information.</p>`;
+                container.appendChild(info);
+            }
+
+            function showNodeDetails(entry) {
+                // Create or update a modal with node details
+                let modal = document.getElementById('node-details-modal');
+
+                if (!modal) {
+                    modal = document.createElement('div');
+                    modal.id = 'node-details-modal';
+                    modal.className = 'insights-modal';
+                    document.body.appendChild(modal);
+                }
+
+                modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Node Details - ${entry.date}</h3>
+                <button class="modal-close" onclick="this.closest('.insights-modal').remove()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="node-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Date:</span>
+                        <span class="detail-value">${entry.date}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Steps:</span>
+                        <span class="detail-value">${entry.steps.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Calories:</span>
+                        <span class="detail-value">${entry.calories.toLocaleString()}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Distance:</span>
+                        <span class="detail-value">${entry.distance} km</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Active Minutes:</span>
+                        <span class="detail-value">${entry.active_minutes} min</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn" onclick="this.closest('.insights-modal').remove()">Close</button>
+            </div>
+        </div>
+    `;
+
+                // Add styles for the details if not already added
+                if (!document.getElementById('node-details-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'node-details-styles';
+                    style.textContent = `
+            .node-details {
+                padding: 10px;
+            }
+            .detail-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: 1px solid var(--border-color);
+            }
+            .detail-row:last-child {
+                border-bottom: none;
+            }
+            .detail-label {
+                font-weight: 600;
+                color: var(--text-secondary);
+            }
+            .detail-value {
+                color: var(--text-primary);
+            }
+        `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            // Call the render function when the page loads
+            document.addEventListener('DOMContentLoaded', function () {
+                // ... your existing code ...
+                renderLinkedList(); // Add this line
+            });
+
+            // Also call it when the dashboard updates
+            function updateDashboard() {
+                // ... your existing code ...
+                renderLinkedList(); // Add this line
+            }
 
         // Mobile menu toggle
         const menuToggle = document.getElementById('menu-toggle');
@@ -2050,76 +2286,7 @@
 
         document.getElementById('fitness-form').addEventListener('submit', function (e) {
         });
-
-function renderLinkedList() {
-    const entries = JSON.parse('{{ entries | tojson | safe }}');
-    const container = document.getElementById('linked-list-visualization');
-    const emptyState = document.getElementById('linked-list-empty');
-
-    container.innerHTML = ''; // Clear previous
-
-    if (entries.length === 0) {
-        emptyState.style.display = 'block';
-        return;
-    } else {
-        emptyState.style.display = 'none';
-    }
-
-    // Head marker
-    const headLabel = document.createElement('div');
-    headLabel.className = 'node-label';
-    headLabel.textContent = 'Head';
-    container.appendChild(headLabel);
-
-    entries.forEach((entry, index) => {
-        const nodeWrapper = document.createElement('div');
-        nodeWrapper.style.display = 'flex';
-        nodeWrapper.style.flexDirection = 'column';
-        nodeWrapper.style.alignItems = 'center';
-
-        const node = document.createElement('div');
-        node.className = 'node';
-        node.innerHTML = `
-            <div><strong>${entry.date}</strong></div>
-            <div>Steps: ${entry.steps}</div>
-            <div>Cal: ${entry.calories}</div>
-        `;
-
-        // Add Tail label on last node
-        if (index === entries.length - 1) {
-            const tailLabel = document.createElement('div');
-            tailLabel.className = 'node-label';
-            tailLabel.textContent = 'Tail';
-            nodeWrapper.appendChild(tailLabel);
-        }
-
-        nodeWrapper.insertBefore(node, nodeWrapper.firstChild);
-        container.appendChild(nodeWrapper);
-
-        if (index < entries.length - 1) {
-            const arrow = document.createElement('div');
-            arrow.className = 'arrow';
-            arrow.innerHTML = '→';
-            container.appendChild(arrow);
-        }
-    });
-
-    // Null (end of list)
-    const nullNode = document.createElement('div');
-    nullNode.className = 'null-node';
-    nullNode.textContent = '⊘ NULL';
-    container.appendChild(nullNode);
-}
-
-// Run on load
-document.addEventListener('DOMContentLoaded', function () {
-    updateDashboard();
-    renderLinkedList();
-});
     </script>
 </body>
 
 </html>
-
-
-
