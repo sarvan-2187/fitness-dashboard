@@ -2018,6 +2018,72 @@
 
         document.getElementById('fitness-form').addEventListener('submit', function (e) {
         });
+
+function renderLinkedList() {
+    const entries = JSON.parse('{{ entries | tojson | safe }}');
+    const container = document.getElementById('linked-list-visualization');
+    const emptyState = document.getElementById('linked-list-empty');
+
+    container.innerHTML = ''; // Clear previous
+
+    if (entries.length === 0) {
+        emptyState.style.display = 'block';
+        return;
+    } else {
+        emptyState.style.display = 'none';
+    }
+
+    // Head marker
+    const headLabel = document.createElement('div');
+    headLabel.className = 'node-label';
+    headLabel.textContent = 'Head';
+    container.appendChild(headLabel);
+
+    entries.forEach((entry, index) => {
+        const nodeWrapper = document.createElement('div');
+        nodeWrapper.style.display = 'flex';
+        nodeWrapper.style.flexDirection = 'column';
+        nodeWrapper.style.alignItems = 'center';
+
+        const node = document.createElement('div');
+        node.className = 'node';
+        node.innerHTML = `
+            <div><strong>${entry.date}</strong></div>
+            <div>Steps: ${entry.steps}</div>
+            <div>Cal: ${entry.calories}</div>
+        `;
+
+        // Add Tail label on last node
+        if (index === entries.length - 1) {
+            const tailLabel = document.createElement('div');
+            tailLabel.className = 'node-label';
+            tailLabel.textContent = 'Tail';
+            nodeWrapper.appendChild(tailLabel);
+        }
+
+        nodeWrapper.insertBefore(node, nodeWrapper.firstChild);
+        container.appendChild(nodeWrapper);
+
+        if (index < entries.length - 1) {
+            const arrow = document.createElement('div');
+            arrow.className = 'arrow';
+            arrow.innerHTML = '→';
+            container.appendChild(arrow);
+        }
+    });
+
+    // Null (end of list)
+    const nullNode = document.createElement('div');
+    nullNode.className = 'null-node';
+    nullNode.textContent = '⊘ NULL';
+    container.appendChild(nullNode);
+}
+
+// Run on load
+document.addEventListener('DOMContentLoaded', function () {
+    updateDashboard();
+    renderLinkedList();
+});
     </script>
 </body>
 
